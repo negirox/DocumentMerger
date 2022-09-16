@@ -34,7 +34,6 @@ namespace MergerUtility
             {
                 Console.WriteLine("Unable to Merge Documents");
                 Console.WriteLine(ex.StackTrace);
-
             }
         }
     }
