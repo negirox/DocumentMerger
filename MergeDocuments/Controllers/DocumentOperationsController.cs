@@ -1,26 +1,22 @@
-﻿using MergeDocuments.Models;
-using MergeHelper;
+﻿using MergeHelper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MergeDocuments.Controllers
 {
-    public class HomeController : Controller
+    public class DocumentOperationsController : Controller
     {
         [Obsolete]
         private IHostingEnvironment Environment;
         private readonly IHelper _helper;
 
         [Obsolete]
-        public HomeController(IHostingEnvironment _environment, IHelper helper)
+        public DocumentOperationsController(IHostingEnvironment _environment, IHelper helper)
         {
             Environment = _environment;
             _helper = helper;
@@ -37,19 +33,22 @@ namespace MergeDocuments.Controllers
         }
         [HttpPost]
         [Obsolete]
-        public IActionResult MergerIntoOne(List<IFormFile> postedFiles)
+        public IActionResult MergeDocuments(List<IFormFile> postedFiles)
         {
-            string path = Path.Combine(Environment.WebRootPath, "Uploads");
-            if (!Directory.Exists(path))
+            if (postedFiles.Any())
             {
-                Directory.CreateDirectory(path);
-            }
+                string path = Path.Combine(Environment.WebRootPath, "Uploads");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
 
-            List<string> uploadedFiles = new List<string>();
-            CopyToServer(postedFiles, path, uploadedFiles);
-            _helper.MergeDocument(Path.Combine(path, $"MergeDocumentWebFile{DateTime.Now.Ticks}.docx"), uploadedFiles);
-            DeleteFromServer(uploadedFiles);
-            return View();
+                List<string> uploadedFiles = new List<string>();
+                CopyToServer(postedFiles, path, uploadedFiles);
+                _helper.MergeDocument(Path.Combine(path, $"MergeDocumentWebFile{DateTime.Now.Ticks}.docx"), uploadedFiles);
+                DeleteFromServer(uploadedFiles);
+            }
+            return RedirectToAction(nameof(MergerIntoOne));
         }
 
         private static void DeleteFromServer(List<string> uploadedFiles)
@@ -70,5 +69,11 @@ namespace MergeDocuments.Controllers
                 uploadedFiles.Add(Path.Combine(path, fileName));
             }
         }
+        public IActionResult MergeDocuments()
+        {
+            return View();
+        }
+
+
     }
 }
